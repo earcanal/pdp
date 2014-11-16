@@ -1,112 +1,77 @@
-% Implementation of "Multiple, nonorthogonal prototypes"
-% units x units matrix
+% "Multiple, nonorthogonal prototypes" (McClelland & Rumelhart, 1985 p.168ff)
 % 16 "vision" elements: distinguish between cats, dogs and bagels
 % 8 "name" elements: distinguish between 'cat', 'dog' and 'bagel'
-%(McClelland & Rumelhart, 1985 p.168ff)
 
 1; % not a function file
 
-if 0
-function ii=internal_input(u,i,e)
-  % u = unit number
-  % i = input vector
-  % e = external input to unit
-  a    = A .* W(i); % activations * weights
-  a(i) = 0;         % unit doesn't activate itself
-  ii   = sum(a);
-endfunction
-endif
-
-function d=delta(u,i,e)
-  % the delta rule (see McClelland & Rumelhart(1985), p.165)
-  % u = unit number
-  % i = input vector
-  % e = external input to unit
-  d = e(u) - net_internal_input(u,i,e)
+function A=activations(a,units)
+  A = ones(units,"single") .* repmat(a,units,1);
+  A = A - diag(diag(A));                % 0 -> diagonal
 endfunction
 
+function display (ticks, e, a)
+  printf("\tinput  ");
+  printf("%5.1f",e(:));
+  printf("\n");
+  printf("\toutput ");
+  printf("%5.1f",a(:));
+  printf(" (stable after %d ticks)\n",ticks);
+ endfunction
+ 
 %% constants
+ddb       = 0;                      % DEBUG = 1 / NO_DEBUG = 0
+dp        = 1;                      % decimal places in output
+precision = 1000;                   % overcome floating point comparison problem
+units     = single(8);              % number of units in the module
+max_ticks = single(50);             % maximum iterations for activations to stabilise
+e = single([1 -1 1 -1 1 1 -1 -1]);  % external pattern
+a = zeros(1,units,"single");        % initial activations
+W = zeros(units,"single");          % initial weights
 
-precision = 1000;
-units = 8;
-% e = external
-e = zeros(1,units);
-e (2:2:units) = 1;
-e = randn(1,units);
-a = -1; b = 1;
-e=(b-a).*rand(units,1)+a;
-e = e';
-e = [1 -1 1 -1 1 1 -1 -1];
+% FIXME: what should these constants be?
+E = single(.1);                     % excitation 
+D = single(.1);                     % activation decay
+S = single(.3);                     % global strength
+%E = D = S = single(.3);
+% FIXME: weight decay ???
 
-A = zeros(1,units); % initial activations
-W = ones(units);   % initial weights
-E = .5; % excitation 
-D = .5; % decay
-S = .5; % global strength
-
-% weight decay 
-
-%Time is divided into discrete ticks.
-%An input pattern is presented at some point in time over some or all of the input lines to the module and is
-%then left on for several ticks, until the pattern of activation it produces settles down and stops changing.
-
-% t-1 output vector
-ticks = 0;
-max_ticks = 50;
-
-internal = ones(units) .* repmat(A,units,1);
-internal = internal - diag(diag(internal));
-weighted = internal .* W;
-net      = sum(weighted,2) + e';
-
-for trials = 1:10
-e
-A
-do
-  for i = 1:units
-    % phase 1: determine net input
-    %u    = a(i);                     % current activation for unit
-    %n    = internal_input(i) + e(i); % net input
-    % phase 2: update activations
-    n = net(i);
-    if (n > 0)
-      d = E * n * (1 - A(i)) - D * A(i);
-    else % n <= 0
-      d = E * n * (A(i) - (-1)) - D * A(i);
-    endif
-    new_A(i) = A(i) + d;
-  endfor
-  ticks++;
-  %ticks
-  %e
-  %A
-  %new_A
-  x = round(A * precision);
-  y = round(new_A * precision);
-  A = new_A;
-until (isequal(x,y) | ticks == max_ticks) % stable activation
-sprintf("%d ticks",ticks)
-A
-
-internal = ones(units) .* repmat(A,units,1);
-internal = internal - diag(diag(internal));
-weighted = internal .* W;
-delta    = e' - sum(weighted,2);
-deltas   = ones(units) .* repmat(delta',units,1);
-deltas   = deltas - diag(diag(deltas));
-deltas   = deltas * S;
-sprintf("%d trials",trials)
-W
-W = deltas;
-W
+for trial = 1:10
+  printf("learning trial %d\n",trial);
+  A = activations(a,units);   % activations as a matrix
+  w = A .* W;                 % weighted activations
+  n = sum(w,2) + e';          % phase 1: determine net activations
+  if (ddb)
+    e
+    a
+  endif
+  ticks = 0;
+  do                          % phase 2: update activations
+  old_a = a;
+   for i = 1:units
+      ni = n(i);
+      if (ni > 0)
+        d = E * ni * (1 - a(i)) - D * a(i);
+      else % ni <= 0
+        d = E * ni * (a(i) - (-1)) - D * a(i);
+      endif
+      a(i) = a(i) + d;
+    endfor
+    ticks++;
+    ra  = round(a * precision);
+    roa = round(old_a * precision);
+  until (isequal(ra,roa) | ticks == max_ticks) % stable activation
+  display(ticks,e,a);
+  
+  %% delta rule
+  if (ddb) printf("** Applying delta rule **\n\n"); endif
+  A = activations(a,units);    % new activations as a matrix
+  w = A .* W;                  % weighted activations
+  delta    = e' - sum(w,2);
+  deltas   = activations(delta',units);
+  deltas   = deltas * S;
+  if (ddb)
+    W
+    deltas
+  endif
+  W = deltas;
 endfor
-
-if 0
-% apply delta rule
-% FIXME: to all weights in one go
-for i = 1:units
-  W(i) + S * delta(i,a,e) * A(i);
-endfor  
-endif
-
-%weight(1:end,1) = [1:1:units]'; % hack in some different values for each unit

@@ -63,9 +63,9 @@ function newa=test(a,e,W,units,ddb)
   
   % phase 2: update activations
   ticks = 0;
-  ra  = 1;
-  roa = 0;
-  while (not(isequal(ra,roa)) || ticks < max_ticks) % stable activation
+  ra    = 1;
+  roa   = 0;
+  while (! isequal(ra,roa) && ticks < max_ticks) % stable activation
     old_a = a;
     for i = 1:units
       ni = n(i);
@@ -75,13 +75,13 @@ function newa=test(a,e,W,units,ddb)
         d = E * ni * (a(i) + 1) - D * a(i);
       end
       a(i) = a(i) + d;
-      end
+    end
     ticks = ticks + 1;
     ra  = round(a * precision);
     roa = round(old_a * precision);
     if (ddb)
-      fprintf('%s',ra);
-      fprintf('%s',roa);
+      fprintf('ra = %s\n',mat2str(ra));
+      fprintf('roa = %s\n',mat2str(roa));
     end
   end % stable activation
   newa = a;

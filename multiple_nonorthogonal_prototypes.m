@@ -67,7 +67,7 @@ function newa=test(a,e,W,units,ddb)
   ticks = 0;
   ra    = 1;
   roa   = 0;
-  while (! isequal(ra,roa) && ticks < max_ticks) % stable activation
+  while (not(isequal(ra,roa)) && ticks < max_ticks) % stable activation
     old_a = a;
     for i = 1:units
       ni = n(i);
@@ -89,4 +89,3 @@ function newa=test(a,e,W,units,ddb)
   newa = a;
   display(ticks,e,newa);
 end
-

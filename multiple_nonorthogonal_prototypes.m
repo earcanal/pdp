@@ -9,13 +9,13 @@ ddb   = 0;                       % DEBUG = 1 / NO_DEBUG = 0
 units = single(8);               % number of units in the module
 W     = ones(units,'single');    % initial weights
 a     = zeros(1,units,'single'); % initial activations
-S     = single(2.9);               % global strength
+S     = single(.9);              % global strength
 e = single([1 -1 1 -1 1 1 -1 -1]);      % external pattern
 % FIXME: weight decay ???
 
 a = test(a,e,W,units,ddb);
 
-for trial = 1:10
+for trial = 1:20
   fprintf('learning trial %d\n',trial);
   a = test(a,e,W,units,ddb);
 
@@ -27,8 +27,8 @@ for trial = 1:10
   deltas = activations(delta',units);
   W      = S .* deltas .* A;
   if (ddb)
-    W
-    deltas
+    fprintf('W = %s\n',W);
+    fprintf('deltas = %s\n',deltas);
   end
 end
 end
@@ -40,16 +40,16 @@ end
 
 function display (ticks, e, a)
   fprintf('\tinput  ');
-  fprintf('%5.1f',e(:));
+  fprintf('%6.2f',e(:));
   fprintf('\n');
   fprintf('\toutput ');
-  fprintf('%5.1f',a(:));
+  fprintf('%6.2f',a(:));
   fprintf(' (stable after %d ticks)\n',ticks);
 end
 
 function newa=test(a,e,W,units,ddb)
   % FIXME: what should this constant be?
-  D = single(.27);        % Excitation/Decay
+  D = single(.1);             % Excitation/Decay
   E = D;
   max_ticks = single(50);     % maximum iterations for activations to stabilise
   precision = 1000;           % overcome floating point comparison problem
@@ -57,8 +57,8 @@ function newa=test(a,e,W,units,ddb)
   A = A .* W;                 % weighted activations
   n = sum(A,2) + e';          % phase 1: determine net activations
   if (ddb)
-    fprintf('%s',mat2str(e));
-    fprintf('%s',mat2str(a));
+    fprintf('%s\n',mat2str(e));
+    fprintf('%s\n',mat2str(a));
   end
   
   % phase 2: update activations

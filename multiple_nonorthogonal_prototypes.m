@@ -5,7 +5,7 @@
 function multiple_nonorthoganal_prototypes
 
 %% constants
-ddb   = 0;                       % DEBUG = 1 / NO_DEBUG = 0
+ddb   = 1;                       % DEBUG = 1 / NO_DEBUG = 0
 units = single(8);               % number of units in the module
 W     = ones(units,'single');    % initial weights
 a     = zeros(1,units,'single'); % initial activations
@@ -27,8 +27,10 @@ for trial = 1:20
   deltas = activations(delta',units);
   W      = S .* deltas .* A;
   if (ddb)
-    fprintf('W = %s\n',W);
-    fprintf('deltas = %s\n',deltas);
+    fprintf('weights\n');
+    disp(W);
+    fprintf('deltas\n');
+    disp (deltas);
   end
 end
 end
@@ -79,7 +81,7 @@ function newa=test(a,e,W,units,ddb)
     ticks = ticks + 1;
     ra  = round(a * precision);
     roa = round(old_a * precision);
-    if (ddb)
+    if (ddb > 1)
       fprintf('ra = %s\n',mat2str(ra));
       fprintf('roa = %s\n',mat2str(roa));
     end

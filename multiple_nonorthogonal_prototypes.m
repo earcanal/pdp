@@ -9,7 +9,7 @@ ddb   = 0;                       % DEBUG = 1 / NO_DEBUG = 0
 units = single(8);               % number of units in the module
 W     = ones(units,'single');    % initial weights
 a     = zeros(1,units,'single'); % initial activations
-S     = single(.9);              % global strength
+S     = single(.08);             % global strength
 e = single([1 -1 1 -1 1 1 -1 -1]);      % external pattern
 % FIXME: weight decay ???
 
@@ -49,7 +49,7 @@ end
 
 function newa=test(a,e,W,units,ddb)
   % FIXME: what should this constant be?
-  D = single(.1);             % Excitation/Decay
+  D = single(.95);            % Excitation/Decay
   E = D;
   max_ticks = single(50);     % maximum iterations for activations to stabilise
   precision = 1000;           % overcome floating point comparison problem

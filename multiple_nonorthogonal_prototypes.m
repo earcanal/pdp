@@ -4,20 +4,18 @@
 
 function multiple_nonorthoganal_prototypes
   %% constants
-  ddb   = 1;                       % DEBUG = 1 / NO_DEBUG = 0
-  units = single(8);               % number of units in the module
-  W     = ones(units,'single');    % initial weights
-  a     = zeros(1,units,'single'); % initial activations
-  S     = single(.05);             % global strength
-  e = single([1 -1 1 -1 1 1 -1 -1]);      % external pattern
+  ddb   = 0;                         % DEBUG = 1 / NO_DEBUG = 0
+  units = single(8);                 % number of units in the module
+  W     = ones(units,'single');      % initial weights
+  a     = zeros(1,units,'single');   % initial activations
+  S     = single(.1);               % global strength
+  e = single([1 -1 1 -1 1 1 -1 -1]); % external pattern
   % FIXME: weight decay ???
 
   a = test(a,e,W,units,ddb);
 
-  for trial = 1:20
+  for trial = 1:10
     fprintf('learning trial %d\n',trial);
-    a = test(a,e,W,units,ddb);
-
     %% delta rule
     if (ddb) fprintf('** Applying delta rule **\n\n'); end
     A      = activations(a,units);    % new activations as a matrix
@@ -31,6 +29,7 @@ function multiple_nonorthoganal_prototypes
       fprintf('deltas\n');
       disp (deltas);
     end
+    a = test(a,e,W,units,ddb);
   end
 end
 
@@ -49,24 +48,24 @@ function display (ticks, e, a)
 end
 
 function newa=test(a,e,W,units,ddb)
-  % FIXME: what should this constant be?
-  D = single(.95);            % Excitation/Decay
-  E = D;
+  E = single(.2);              % excitation
+  D = single(.1);             % decay
   max_ticks = single(50);     % maximum iterations for activations to stabilise
   precision = 1000;           % overcome floating point comparison problem
-  A = activations(a,units);   % activations as a matrix
-  A = A .* W;                 % weighted activations
-  n = sum(A,2) + e';          % phase 1: determine net activations
-  if (ddb)
-    fprintf('%s\n',mat2str(e,2));
-    fprintf('%s\n',mat2str(a,2));
-  end
-  
+
   % phase 2: update activations
   ticks = 0;
   ra    = 1;
   roa   = 0;
   while (not(isequal(ra,roa)) && ticks < max_ticks) % stable activation
+    A = activations(a,units);   % activations as a matrix
+    A = A .* W;                 % weighted activations
+    n = e' + sum(A,2);          % net activations
+    if (ddb)
+      fprintf('%s\n',mat2str(e,2));
+      fprintf('%s\n',mat2str(a,2));
+    end
+  
     old_a = a;
     for i = 1:units
       ni = n(i);

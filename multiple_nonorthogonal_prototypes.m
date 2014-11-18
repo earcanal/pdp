@@ -9,7 +9,7 @@ ddb   = 1;                       % DEBUG = 1 / NO_DEBUG = 0
 units = single(8);               % number of units in the module
 W     = ones(units,'single');    % initial weights
 a     = zeros(1,units,'single'); % initial activations
-S     = single(.08);             % global strength
+S     = single(.05);             % global strength
 e = single([1 -1 1 -1 1 1 -1 -1]);      % external pattern
 % FIXME: weight decay ???
 
@@ -59,8 +59,8 @@ function newa=test(a,e,W,units,ddb)
   A = A .* W;                 % weighted activations
   n = sum(A,2) + e';          % phase 1: determine net activations
   if (ddb)
-    fprintf('%s\n',mat2str(e));
-    fprintf('%s\n',mat2str(a));
+    fprintf('%s\n',mat2str(e,2));
+    fprintf('%s\n',mat2str(a,2));
   end
   
   % phase 2: update activations

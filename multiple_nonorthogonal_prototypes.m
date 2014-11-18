@@ -3,36 +3,35 @@
 % 8 'name' elements: distinguish between 'cat', 'dog' and 'bagel'
 
 function multiple_nonorthoganal_prototypes
+  %% constants
+  ddb   = 1;                       % DEBUG = 1 / NO_DEBUG = 0
+  units = single(8);               % number of units in the module
+  W     = ones(units,'single');    % initial weights
+  a     = zeros(1,units,'single'); % initial activations
+  S     = single(.05);             % global strength
+  e = single([1 -1 1 -1 1 1 -1 -1]);      % external pattern
+  % FIXME: weight decay ???
 
-%% constants
-ddb   = 1;                       % DEBUG = 1 / NO_DEBUG = 0
-units = single(8);               % number of units in the module
-W     = ones(units,'single');    % initial weights
-a     = zeros(1,units,'single'); % initial activations
-S     = single(.05);             % global strength
-e = single([1 -1 1 -1 1 1 -1 -1]);      % external pattern
-% FIXME: weight decay ???
-
-a = test(a,e,W,units,ddb);
-
-for trial = 1:20
-  fprintf('learning trial %d\n',trial);
   a = test(a,e,W,units,ddb);
 
-  %% delta rule
-  if (ddb) fprintf('** Applying delta rule **\n\n'); end
-  A      = activations(a,units);    % new activations as a matrix
-  A      = A .* W;                  % weighted activations
-  delta  = e' - sum(A,2);
-  deltas = activations(delta',units);
-  W      = S .* deltas .* A;
-  if (ddb)
-    fprintf('weights\n');
-    disp(W);
-    fprintf('deltas\n');
-    disp (deltas);
+  for trial = 1:20
+    fprintf('learning trial %d\n',trial);
+    a = test(a,e,W,units,ddb);
+
+    %% delta rule
+    if (ddb) fprintf('** Applying delta rule **\n\n'); end
+    A      = activations(a,units);    % new activations as a matrix
+    A      = A .* W;                  % weighted activations
+    delta  = e' - sum(A,2);
+    deltas = activations(delta',units);
+    W      = S .* deltas .* A;
+    if (ddb)
+      fprintf('weights\n');
+     disp(W);
+      fprintf('deltas\n');
+      disp (deltas);
+    end
   end
-end
 end
 
 function A=activations(a,units)

@@ -4,9 +4,9 @@
 
 function multiple_nonorthoganal_prototypes
   %% constants
-  ddb   = 0;                         % DEBUG = 1 / NO_DEBUG = 0
+  ddb   = 1;                         % DEBUG = 1 / NO_DEBUG = 0
   units = single(8);                 % number of units in the module
-  W     = ones(units,'single');      % initial weights
+  W     = zeros(units,'single');      % initial weights
   a     = zeros(1,units,'single');   % initial activations
   S     = single(.1);               % global strength
   e = single([1 -1 1 -1 1 1 -1 -1]); % external pattern

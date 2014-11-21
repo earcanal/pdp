@@ -2,13 +2,13 @@
 % 16 'vision' elements: distinguish between cats, dogs and bagels
 % 8 'name' elements: distinguish between 'cat', 'dog' and 'bagel'
 
-function multiple_nonorthoganal_prototypes
+function multiple_nonorthogonal_prototypes
   %% constants
-  ddb   = 1;                         % DEBUG = 1 / NO_DEBUG = 0
+  ddb   = 0;                         % DEBUG level 0-2
   units = single(8);                 % number of units in the module
   W     = zeros(units,'single');      % initial weights
   a     = zeros(1,units,'single');   % initial activations
-  S     = single(.1);               % global strength
+  S     = single(.07);               % global strength
   e = single([1 -1 1 -1 1 1 -1 -1]); % external pattern
   % FIXME: weight decay ???
 
@@ -25,7 +25,7 @@ function multiple_nonorthoganal_prototypes
     W      = S .* deltas .* A;
     if (ddb)
       fprintf('weights\n');
-     disp(W);
+      disp(W);
       fprintf('deltas\n');
       disp (deltas);
     end
@@ -48,26 +48,25 @@ function display (ticks, e, a)
   fprintf('\n');
   fprintf('\toutput ');
   fprintf('%6.2f',a(:));
-  fprintf(' (stable after %d ticks)\n',ticks);
+  fprintf('\n\n');
 end
 
 function newa=test(a,e,W,units,ddb)
-  E = single(.2);              % excitation
-  D = single(.1);             % decay
-  max_ticks = single(50);     % maximum iterations for activations to stabilise
-  precision = 1000;           % overcome floating point comparison problem
+  E = single(.9);               % excitation
+  D = single(.9);               % decay
+  max_ticks = single(50);       % maximum iterations for activations to stabilise
+  precision = 1000;             % overcome floating point comparison problem
 
   % phase 2: update activations
-  ticks = 0;
-  ra    = 1;
-  roa   = 0;
-  while (not(isequal(ra,roa)) && ticks < max_ticks) % stable activation
+  for tick = 1:max_ticks        % stable activation
     A = activations(a,units);   % activations as a matrix
     A = A .* W;                 % weighted activations
     n = e' + sum(A,2);          % net activations
     if (ddb)
-      fprintf('%s\n',mat2str(e,2));
-      fprintf('%s\n',mat2str(a,2));
+      fprintf('e = %s\n',mat2str(e,2));
+      fprintf('a = %s\n',mat2str(a,2));
+      fprintf('sum(A,2) = %s\n',mat2str(sum(A,2)));
+      fprintf('net activations = %s\n',mat2str(n));
     end
   
     old_a = a;
@@ -80,14 +79,11 @@ function newa=test(a,e,W,units,ddb)
       end
       a(i) = a(i) + d;
     end
-    ticks = ticks + 1;
-    ra  = round(a * precision);
-    roa = round(old_a * precision);
     if (ddb > 1)
-      fprintf('ra = %s\n',mat2str(ra));
-      fprintf('roa = %s\n',mat2str(roa));
+      fprintf('weights (tick %d)\n',tick);
+      disp(W);
     end
-  end % stable activation
+  end
   newa = a;
-  display(ticks,e,newa);
+  display(tick,e,newa);
 end

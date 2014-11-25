@@ -8,9 +8,9 @@ function multiple_nonorthogonal_prototypes
   units = single(8);                 % number of units in the module
   W     = zeros(units,'single');     % initial weights
   a     = zeros(1,units,'single');   % initial activations
-  S     = single(.05);               % global strength
+  S     = single(.093);              % global strength
   e = single([1 -1 1 -1 1 1 -1 -1]); % external pattern
-  % FIXME: weight decay ???
+  wd    = ones(units) * .8;          % weight decay
 
   a = test(a,e,W,units,ddb);
 
@@ -25,16 +25,18 @@ function multiple_nonorthogonal_prototypes
       disp(A);
       fprintf('e = %s\ni = %s\n',mat2str(e'),mat2str(sum(A,2),2));
       fprintf('e - i = %s\n',mat2str(delta,2));
-    endif
+    end
     deltas = repmat(delta,1,units);
     deltas = deltas - diag(diag(deltas));
     W      = S .* deltas .* A;
     if (ddb)
-    fprintf('deltas\n');
-    disp(deltas);
-    fprintf('weights\n');
-    disp(W);
+      fprintf('deltas\n');
+      disp(deltas);
+      fprintf('weights\n');
+      disp(W);
     end
+    W = W .* wd;                     % weight decay
+
     a = test(a,e,W,units,ddb);
   end
   % FIXME: partial input
@@ -58,8 +60,8 @@ function display (ticks, e, a)
 end
 
 function newa=test(a,e,W,units,ddb)
-  E = single(.99);            % excitation
-  D = single(.99);            % decay
+  E = single(.90);             % excitation
+  D = single(.90);             % decay
   max_ticks = single(50);     % maximum iterations for activations to stabilise
 
   for tick = 1:max_ticks      % ticks to stable activation

@@ -8,9 +8,9 @@ function multiple_nonorthogonal_prototypes
   units = single(8);                 % number of units in the module
   W     = zeros(units,'single');     % initial weights
   a     = zeros(1,units,'single');   % initial activations
-  S     = single(.093);              % global strength
+  S     = single(.1);                % global strength
   e = single([1 -1 1 -1 1 1 -1 -1]); % external pattern
-  wd    = ones(units) * .8;          % weight decay
+  wd    = ones(units) * 20;          % weight decay
 
   a = test(a,e,W,units,ddb);
 
@@ -35,7 +35,7 @@ function multiple_nonorthogonal_prototypes
       fprintf('weights\n');
       disp(W);
     end
-    W = W .* wd;                     % weight decay
+    W = W ./ wd;                     % weight decay
 
     a = test(a,e,W,units,ddb);
   end
@@ -60,8 +60,8 @@ function display (ticks, e, a)
 end
 
 function newa=test(a,e,W,units,ddb)
-  E = single(.90);             % excitation
-  D = single(.90);             % decay
+  E = single(.99);             % excitation
+  D = single(.99);             % decay
   max_ticks = single(50);     % maximum iterations for activations to stabilise
 
   for tick = 1:max_ticks      % ticks to stable activation

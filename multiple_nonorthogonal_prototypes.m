@@ -17,7 +17,7 @@ function multiple_nonorthogonal_prototypes
   for trial = 1:10
     fprintf('learning trial %d\n',trial);
     %% delta rule
-    if (ddb) fprintf('** Applying delta rule **\n\n'); end
+    if (ddb > 1) fprintf('** Applying delta rule **\n\n'); end
     A     = activations(a,units);    % activations as a matrix
     delta = e' - sum(A,2);
     if (ddb)
@@ -69,9 +69,9 @@ function newa=test(a,e,W,units,ddb)
     A = activations(a,units); % activations as a matrix
     A = A .* W;               % weighted activations
     n = sum(A,2) + e';        % net inputs 
-    if (ddb > 1)
+    if (ddb)
       %fprintf('e = %s\n',mat2str(e,2));
-      fprintf('a = %s\n',mat2str(a,2));
+      fprintf('a(tick %d) = %s\n',tick,mat2str(a,2));
       %fprintf('sum(A,2) = %s\n',mat2str(sum(A,2)));
       %fprintf('net activations = %s\n',mat2str(n));
     end
@@ -86,7 +86,7 @@ function newa=test(a,e,W,units,ddb)
       if (ddb > 1)
         fprintf('d = %.2f\n',d);
       end
-      a(i) = a(i) + d;
+      a(i) = a(i) + 0.04 * d;
     end
   end
   display(tick,e,a);
